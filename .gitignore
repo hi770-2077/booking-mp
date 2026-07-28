@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# Build outputs
+dist/
+build/
+output/
+.taro/
+.pai/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+.vercel
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Test
+coverage/
+
+# Cache
+.cache/
+.tmp/
+.parcel-cache/
+
+# Sensitive
+private.key
+*.key
+.claude/
+*.bak.*
+
+# Taro specific
+.taro/
+*.tt.miniapp
+sourcemap/
+
+# Mini program keys
+**/private.*.key
+**/project.private.config.json
+
+# Auth folder (WeChat mini program keys)
+.auth/
+.swc/
+
+# Taro preview/build cache
+.taro/
+.pai/
+.auth_temp/

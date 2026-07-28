@@ -1,0 +1,1522 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: 220rpx;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 32rpx 16rpx;
+}
+
+.storeBtn {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 10rpx 20rpx 10rpx 14rpx;
+  background: rgba(247, 242, 233, 0.1);
+  border-radius: 32rpx;
+  border: 1rpx solid rgba(212, 184, 122, 0.25);
+  line-height: 1;
+}
+
+.storeBtn::after {
+  border: none;
+}
+
+// CSS 定位针图标 - 内嵌水滴造型
+.storePin {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50% 50% 50% 0;
+  background: $color-gold;
+  transform: rotate(-45deg);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.storePinDot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: $color-wine;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.storeName {
+  font-size: 24rpx;
+  color: $color-gold;
+  font-weight: 500;
+  letter-spacing: 1rpx;
+}
+
+// CSS 下三角形箭头 - 比 emoji 更精致
+.chevron {
+  width: 0;
+  height: 0;
+  border-left: 8rpx solid transparent;
+  border-right: 8rpx solid transparent;
+  border-top: 10rpx solid rgba(212, 184, 122, 0.85);
+  flex-shrink: 0;
+  margin-left: 4rpx;
+}
+
+.bookingsBtn {
+  position: relative;
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(247, 242, 233, 0.12);
+  border: 1rpx solid rgba(212, 184, 122, 0.25);
+  padding: 0;
+}
+
+.bookingsBtn::after {
+  border: none;
+}
+
+// 我的预约 pill 按钮 - 拱形内顶部右侧
+.bookingsPill {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 16rpx 10rpx 12rpx;
+  border-radius: 28rpx;
+  background: rgba(247, 242, 233, 0.15);
+  border: 1rpx solid rgba(212, 184, 122, 0.3);
+  line-height: 1;
+  position: relative;
+}
+
+.bookingsPill::after {
+  border: none;
+}
+
+.bookingsPillText {
+  font-size: 22rpx;
+  color: $color-gold-deep;
+  letter-spacing: 1rpx;
+  font-weight: 500;
+}
+
+// 三横线列表图标 - CSS 绘制，更精致
+.bookingsIcon {
+  width: 28rpx;
+  height: 22rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.bookingsLine {
+  height: 2rpx;
+  background: $color-gold;
+  border-radius: 1rpx;
+}
+
+.bookingsLine:nth-child(1) {
+  width: 100%;
+}
+
+.bookingsLine:nth-child(2) {
+  width: 75%;
+}
+
+.bookingsLine:nth-child(3) {
+  width: 50%;
+}
+
+.badge {
+  position: absolute;
+  top: -6rpx;
+  right: -6rpx;
+  min-width: 28rpx;
+  height: 28rpx;
+  padding: 0 6rpx;
+  border-radius: 14rpx;
+  background: $color-gold;
+  color: $color-wine;
+  font-size: 18rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// 主拱形容器 - 半圆拱顶（顶部圆角=宽度的一半=351rpx）+ 底部圆角
+.archCard {
+  margin: 0 24rpx 24rpx;
+  background: $color-bg-card;
+  border: 2rpx solid $color-gold;
+  border-top-left-radius: 351rpx;
+  border-top-right-radius: 351rpx;
+  border-bottom-left-radius: 32rpx;
+  border-bottom-right-radius: 32rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+// 拱形顶部 - 仅保留门店切换（居中显示）
+.archTopRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80rpx 24rpx 16rpx; // 80rpx 避开半圆弧顶
+  gap: 12rpx;
+}
+
+.archTopRowItem {
+  display: flex;
+  justify-content: center;
+}
+
+.archTitle {
+  padding: 8rpx 40rpx 24rpx;
+  text-align: center;
+  border-bottom: 1rpx dashed rgba(212, 184, 122, 0.4);
+}
+
+.archSubTitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  color: $color-gold-deep;
+  font-size: 22rpx;
+  letter-spacing: 8rpx;
+  margin-bottom: 12rpx;
+}
+
+.archMainTitle {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: $color-wine;
+  letter-spacing: 4rpx;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+
+.archSlogan {
+  font-size: 22rpx;
+  color: $color-wine-soft;
+  margin-top: 12rpx;
+  letter-spacing: 2rpx;
+}
+
+// 区块通用
+.section {
+  padding: 24rpx 32rpx 0;
+  position: relative;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.sectionTitle {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: $color-wine;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.sectionTitleBar {
+  width: 4rpx;
+  height: 28rpx;
+  background: $color-gold;
+}
+
+// 隐藏的管理员入口 - 长按触发
+.adminEntry {
+  width: 32rpx;
+  height: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.15;
+
+  & > Text {
+    font-size: 32rpx;
+    color: $color-wine;
+    font-weight: 900;
+  }
+}
+
+.sectionCount {
+  font-size: 20rpx;
+  font-weight: 400;
+  color: $color-gold-deep;
+}
+
+// 套餐网格 - 长条形卡片 (2列横排，宽高比约3:1)
+.packageGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.packageRow {
+  display: flex;
+  gap: 10rpx;
+}
+
+.packageCard {
+  flex: 1;
+  position: relative;
+  border-radius: 14rpx;
+  border: 2rpx solid rgba(212, 184, 122, 0.4);
+  background: $color-bg-card-alt;
+  padding: 14rpx 16rpx;
+  text-align: left;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.packageCardActive {
+  background: $color-wine;
+  border-color: $color-wine;
+  box-shadow: 0 4rpx 12rpx rgba(89, 32, 46, 0.3);
+}
+
+.packageCard::after {
+  border: none;
+}
+
+.packageBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.discountBadge {
+  position: absolute;
+  top: 6rpx;
+  right: 6rpx;
+  padding: 2rpx 8rpx;
+  font-size: 16rpx;
+  font-weight: 700;
+  border-radius: 6rpx;
+  background: $color-wine;
+  color: $color-gold;
+  line-height: 1.4;
+}
+
+.discountBadgeActive {
+  background: $color-gold;
+  color: $color-wine;
+}
+
+.packagePriceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+
+.packageYuan {
+  font-size: 16rpx;
+  font-weight: 500;
+  color: $color-gold-deep;
+}
+
+.packageYuanActive {
+  color: $color-gold;
+}
+
+.packagePrice {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: $color-wine-deep;
+  line-height: 1;
+}
+
+.packagePriceActive {
+  color: $color-gold;
+}
+
+.packageOrigPrice {
+  font-size: 16rpx;
+  text-decoration: line-through;
+  color: rgba(112, 54, 67, 0.45);
+  margin-left: 4rpx;
+}
+
+.packageOrigPriceActive {
+  color: rgba(247, 242, 233, 0.5);
+}
+
+.packageTitle {
+  font-size: 22rpx;
+  font-weight: 600;
+  color: $color-wine;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.packageTitleActive {
+  color: $color-cream;
+}
+
+.packageMeta {
+  font-size: 18rpx;
+  margin-top: 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  color: $color-wine-soft;
+}
+
+.packageMetaActive {
+  color: $color-gold;
+}
+
+.packageTag {
+  padding: 0 8rpx;
+  border-radius: 4rpx;
+  font-size: 16rpx;
+  background: $color-cream;
+  border: 1rpx solid rgba(212, 184, 122, 0.4);
+}
+
+.packageTagActive {
+  background: rgba(212, 184, 122, 0.2);
+  border-color: transparent;
+}
+
+.packageDuration {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.packageDesc {
+  margin-top: 12rpx;
+  padding: 0 16rpx 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 20rpx;
+  color: $color-wine-soft;
+}
+
+.packageDescArrow {
+  color: $color-gold-deep;
+  flex-shrink: 0;
+}
+
+.packageDescText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 日期选择区 - 周视图
+.datePickerBtn {
+  font-size: 20rpx;
+  color: $color-gold-deep;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 8rpx 12rpx;
+  border-radius: 8rpx;
+  background: rgba(89, 32, 46, 0.05);
+  line-height: 1;
+}
+
+.datePickerBtn::after {
+  border: none;
+}
+
+// 当前选中日期展示
+.dateCurrent {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  padding: 4rpx 4rpx 16rpx;
+}
+
+.dateCurrentBig {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: $color-wine;
+  letter-spacing: 2rpx;
+  line-height: 1;
+}
+
+.dateCurrentSub {
+  font-size: 22rpx;
+  color: $color-gold-deep;
+  letter-spacing: 2rpx;
+}
+
+// 周导航栏
+.weekNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8rpx 0 12rpx;
+}
+
+.weekArrow {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: $color-bg-card-alt;
+  border: 2rpx solid rgba(212, 184, 122, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.weekArrow::after {
+  border: none;
+}
+
+.weekArrowText {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: $color-wine;
+  line-height: 1;
+}
+
+.weekInfo {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.weekLabel {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: $color-wine;
+  letter-spacing: 2rpx;
+}
+
+.weekRange {
+  font-size: 18rpx;
+  color: $color-gold-deep;
+  letter-spacing: 1rpx;
+}
+
+// 一周 7 天 - 横向铺满
+.dateWeek {
+  display: flex;
+  gap: 8rpx;
+}
+
+.dateItem {
+  flex: 1;
+  min-width: 0;
+  padding: 14rpx 0;
+  border-radius: 14rpx;
+  border: 2rpx solid rgba(212, 184, 122, 0.3);
+  background: $color-bg-card-alt;
+  text-align: center;
+  line-height: 1.2;
+  color: $color-wine;
+}
+
+.dateItem::after {
+  border: none;
+}
+
+.dateItemActive {
+  background: $color-wine;
+  border-color: $color-wine;
+}
+
+.dateItemWeekend {
+  background: $color-cream;
+}
+
+.dateItemToday {
+  border-color: $color-gold;
+}
+
+.dateWeekday {
+  font-size: 18rpx;
+  color: $color-gold-deep;
+}
+
+.dateWeekdayActive {
+  color: $color-gold;
+}
+
+.dateDay {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: $color-wine;
+  margin-top: 4rpx;
+}
+
+.dateDayActive {
+  color: $color-cream;
+}
+
+// 周指示点
+.weekDots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12rpx;
+  padding: 16rpx 0 4rpx;
+}
+
+.weekDot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: rgba(212, 184, 122, 0.3);
+  transition: all 0.2s ease;
+}
+
+.weekDotActive {
+  width: 28rpx;
+  border-radius: 6rpx;
+  background: $color-wine;
+}
+
+.dateHint {
+  margin-top: 16rpx;
+  padding: 12rpx 24rpx;
+  background: rgba(212, 184, 122, 0.15);
+  border: 1rpx solid rgba(212, 184, 122, 0.5);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dateHintText {
+  font-size: 22rpx;
+  color: $color-wine;
+}
+
+.dateHintLink {
+  font-size: 20rpx;
+  color: $color-gold-deep;
+  text-decoration: underline;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.dateHintLink::after {
+  border: none;
+}
+
+// 时段网格
+.slotBlock {
+  margin-bottom: 16rpx;
+}
+
+.slotBlockLabel {
+  font-size: 20rpx;
+  color: $color-gold-deep;
+  margin-bottom: 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.slotBlockLabelLine {
+  width: 12rpx;
+  height: 1rpx;
+  background: $color-gold;
+}
+
+.slotGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12rpx;
+}
+
+.slotBtn {
+  position: relative;
+  padding: 12rpx 0;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  text-align: center;
+  border: 1rpx solid rgba(212, 184, 122, 0.4);
+  background: rgba(247, 242, 233, 0.6); // 微米色底，避免白字白底
+  color: $color-wine;
+  line-height: 1;
+  // View 替代 Button，模拟按钮交互
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  user-select: none;
+}
+
+// 时间文字 - 居中
+.slotBtnTime {
+  display: block;
+  line-height: 1.2;
+}
+
+// 容量角标 - 右下小数字 0/2、1/3 等
+.slotBadge {
+  position: absolute;
+  bottom: 2rpx;
+  right: 4rpx;
+  font-size: 14rpx;
+  line-height: 1;
+  padding: 2rpx 6rpx;
+  border-radius: 6rpx;
+  background: rgba(89, 32, 46, 0.08);
+  color: rgba(89, 32, 46, 0.55);
+  font-weight: 600;
+}
+
+.slotBadgeActive {
+  background: rgba(212, 184, 122, 0.2);
+  color: $color-gold;
+}
+
+.slotBtn:active {
+  transform: scale(0.96);
+}
+
+.slotBtnActive {
+  background: $color-wine;
+  border-color: $color-wine;
+  color: $color-gold !important; // 覆盖 Taro Button 默认字色
+  box-shadow: 0 2rpx 8rpx rgba(89, 32, 46, 0.2);
+}
+
+.slotBtnDisabled {
+  background: rgba(247, 242, 233, 0.5);
+  border-color: $color-cream;
+  color: rgba(112, 54, 67, 0.4) !important;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.slotEmpty {
+  padding: 32rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: rgba(112, 54, 67, 0.6);
+}
+
+// 虚线分隔
+.divider {
+  margin: 24rpx 32rpx 0;
+  border-top: 1rpx dashed $color-gold;
+}
+
+// 底部联系信息
+.contact {
+  padding: 16rpx 32rpx 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.contactRow {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 22rpx;
+  color: $color-wine;
+}
+
+.contactPhone {
+  font-weight: 500;
+}
+
+.contactDot {
+  color: $color-gold-deep;
+}
+
+.contactHours {
+  color: $color-gold-deep;
+}
+
+.contactAddr {
+  font-size: 20rpx;
+  color: rgba(112, 54, 67, 0.7);
+  text-align: center;
+}
+
+.noticeBtn {
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  color: $color-gold-deep;
+  text-decoration: underline dashed;
+  background: transparent;
+  border: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.noticeBtn::after {
+  border: none;
+}
+
+// 粘性 CTA
+.cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16rpx 24rpx 24rpx;
+  background: $color-wine;
+  border-top: 1rpx solid rgba(212, 184, 122, 0.2);
+  z-index: 50;
+}
+
+.ctaInner {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.ctaLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+.ctaSummary {
+  font-size: 22rpx;
+  color: $color-gold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ctaPriceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.ctaPriceLabel {
+  font-size: 20rpx;
+  color: $color-gold-deep;
+}
+
+.ctaPrice {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: $color-gold;
+  line-height: 1;
+}
+
+.ctaPriceStrike {
+  font-size: 20rpx;
+  color: $color-gold-deep;
+  text-decoration: line-through;
+}
+
+.ctaBtn {
+  flex-shrink: 0;
+  padding: 0 40rpx;
+  height: 80rpx;
+  border-radius: 24rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  background: $color-gold;
+  color: $color-wine;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: none;
+  box-shadow: 0 8rpx 16rpx rgba(89, 32, 46, 0.4);
+}
+
+.ctaBtn::after {
+  border: none;
+}
+
+.ctaBtnDisabled {
+  background: rgba(212, 184, 122, 0.3);
+  color: rgba(247, 242, 233, 0.5);
+  box-shadow: none;
+}
+
+// ===== Modal 共用样式 =====
+.modalMask {
+  position: fixed;
+  inset: 0;
+  background: $color-bg-overlay;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modalCard {
+  width: 100%;
+  max-width: 686rpx;
+  background: $color-bg-card;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 32rpx 32rpx 48rpx;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx dashed $color-gold;
+  margin-bottom: 24rpx;
+}
+
+.modalTitle {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: $color-wine;
+}
+
+.modalClose {
+  font-size: 40rpx;
+  color: $color-wine-soft;
+  background: transparent;
+  border: none;
+  padding: 0;
+  line-height: 1;
+}
+
+.modalClose::after {
+  border: none;
+}
+
+// Store modal
+.storeOption {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 24rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid $color-border;
+  background: $color-bg-card-alt;
+  margin-bottom: 16rpx;
+  text-align: left;
+}
+
+.storeOptionActive {
+  background: $color-wine;
+  border-color: $color-wine;
+}
+
+.storeOption::after {
+  border: none;
+}
+
+.storeOptionName {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: $color-wine;
+}
+
+.storeOptionNameActive {
+  color: $color-cream;
+}
+
+.storeOptionMeta {
+  font-size: 22rpx;
+  color: $color-wine-soft;
+}
+
+.storeOptionMetaActive {
+  color: rgba(212, 184, 122, 0.85);
+}
+
+// Phone modal
+.phoneInput {
+  width: 100%;
+  height: 96rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid $color-border;
+  background: $color-bg-card-alt;
+  padding: 0 24rpx;
+  font-size: 30rpx;
+  color: $color-wine;
+  margin-bottom: 16rpx;
+  box-sizing: border-box;
+  text-align: center;
+  letter-spacing: 4rpx;
+}
+
+.phoneNameInput {
+  width: 100%;
+  height: 72rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid $color-border;
+  background: $color-bg-card-alt;
+  padding: 0 24rpx;
+  font-size: 24rpx;
+  color: $color-wine;
+  margin-bottom: 24rpx;
+  box-sizing: border-box;
+}
+
+// 手机号簿 - 常用手机号横向滚动
+.phoneBook {
+  margin-bottom: 16rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx dashed rgba(212, 184, 122, 0.3);
+}
+
+.phoneBookHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 22rpx;
+  color: $color-wine;
+  margin-bottom: 12rpx;
+  font-weight: 600;
+}
+
+.phoneBookHint {
+  font-size: 18rpx;
+  color: rgba(89, 32, 46, 0.5);
+  font-weight: 400;
+}
+
+.phoneBookScroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.phoneBookList {
+  display: inline-flex;
+  gap: 12rpx;
+  padding: 4rpx 0;
+}
+
+.phoneBookItem {
+  flex-shrink: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  padding: 12rpx 20rpx;
+  border-radius: 12rpx;
+  background: rgba(247, 242, 233, 0.6);
+  border: 2rpx solid transparent;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.phoneBookItem:active {
+  transform: scale(0.96);
+}
+
+.phoneBookItemActive {
+  background: rgba(89, 32, 46, 0.08);
+  border-color: $color-gold;
+}
+
+.phoneBookPhone {
+  font-size: 24rpx;
+  color: $color-wine;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.phoneBookName {
+  font-size: 18rpx;
+  color: rgba(89, 32, 46, 0.7);
+}
+
+.phoneBookCount {
+  position: absolute;
+  top: 2rpx;
+  right: 4rpx;
+  font-size: 14rpx;
+  color: $color-gold;
+  font-weight: 600;
+  background: rgba(89, 32, 46, 0.08);
+  padding: 2rpx 6rpx;
+  border-radius: 6rpx;
+}
+
+.phoneHint {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: $color-wine-soft;
+  line-height: 1.5;
+}
+
+.modalActionBtn {
+  margin-top: 32rpx;
+  width: 100%;
+  height: 88rpx;
+  border-radius: 48rpx;
+  background: $color-gold;
+  color: $color-wine;
+  font-size: 30rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+.modalActionBtn::after {
+  border: none;
+}
+
+// 微信订阅授权按钮
+.subscribeBtn {
+  margin-top: 16rpx;
+  width: 100%;
+  height: 72rpx;
+  border-radius: 36rpx;
+  background: rgba(212, 184, 122, 0.15);
+  border: 1rpx solid rgba(212, 184, 122, 0.4);
+  font-size: 24rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & > Text {
+    color: $color-gold-deep !important;
+  }
+}
+
+.subscribeBtn::after {
+  border: none;
+}
+
+// Success modal
+.successWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 0 8rpx;
+}
+
+.successIcon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: $color-gold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24rpx;
+  font-size: 80rpx;
+  color: $color-wine;
+  font-weight: 700;
+}
+
+.successTitle {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: $color-wine;
+  margin-bottom: 8rpx;
+}
+
+.successSubTitle {
+  font-size: 24rpx;
+  color: $color-wine-soft;
+  margin-bottom: 32rpx;
+}
+
+.successInfo {
+  width: 100%;
+  background: rgba(212, 184, 122, 0.12);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.successInfoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 26rpx;
+  color: $color-wine;
+  padding: 8rpx 0;
+}
+
+.successInfoLabel {
+  color: $color-wine-soft;
+}
+
+// Bookings modal
+.bookingItem {
+  background: $color-bg-card-alt;
+  border: 2rpx solid $color-border;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.bookingItemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.bookingItemTitle {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $color-wine;
+}
+
+.bookingItemStatus {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  background: rgba(46, 125, 50, 0.12);
+  color: $color-success;
+}
+
+.bookingItemStatusCancelled {
+  background: rgba(198, 40, 40, 0.12);
+  color: $color-error;
+}
+
+.bookingItemMeta {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  font-size: 24rpx;
+  color: $color-wine-soft;
+  margin-bottom: 8rpx;
+}
+
+.bookingItemActions {
+  margin-top: 16rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+}
+
+.cancelBtn {
+  font-size: 24rpx;
+  padding: 12rpx 32rpx;
+  border-radius: 32rpx;
+  border: 2rpx solid $color-error;
+  color: $color-error;
+  background: transparent;
+  line-height: 1;
+}
+
+.cancelBtn::after {
+  border: none;
+}
+
+.bookingEmpty {
+  padding: 80rpx 0;
+  text-align: center;
+  color: $color-wine-soft;
+  font-size: 26rpx;
+}
+
+// Notice modal
+.noticeContent {
+  font-size: 26rpx;
+  color: $color-wine;
+  line-height: 1.7;
+}
+
+.noticeSection {
+  margin-bottom: 24rpx;
+}
+
+.noticeHeading {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: $color-wine;
+  margin-bottom: 8rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.noticeText {
+  color: $color-wine-soft;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+// DatePicker modal
+.datePickerGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16rpx;
+}
+
+.datePickerCell {
+  padding: 16rpx 0;
+  border-radius: 12rpx;
+  border: 1rpx solid $color-border;
+  background: $color-bg-card-alt;
+  text-align: center;
+  font-size: 24rpx;
+  color: $color-wine;
+  line-height: 1.3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.datePickerCellActive {
+  background: $color-wine;
+  border-color: $color-wine;
+  color: $color-cream;
+}
+
+.datePickerCellWeekday {
+  font-size: 18rpx;
+  opacity: 0.7;
+}
+
+.datePickerCellDay {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+// Toast
+.toast {
+  position: fixed;
+  top: 128rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  padding: 16rpx 32rpx;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.2);
+}
+
+.toastSuccess {
+  background: $color-wine;
+  color: $color-gold;
+  border: 1rpx solid $color-gold;
+}
+
+.toastError {
+  background: $color-error;
+  color: $color-bg-card;
+}
+// ──────────────────────────────────────────────────
+// 月历选择器
+// ──────────────────────────────────────────────────
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  padding: 8rpx 4rpx 4rpx;
+}
+
+.calNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4rpx 8rpx 12rpx;
+}
+
+.calArrow {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: $color-bg-card-alt;
+  border: 2rpx solid rgba(212, 184, 122, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.calArrow:active {
+  transform: scale(0.95);
+}
+
+.calArrowDisabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.calArrowText {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: $color-wine;
+  line-height: 1;
+}
+
+.calTitle {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+}
+
+.calTitleYear {
+  font-size: 24rpx;
+  color: $color-gold-deep;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+}
+
+.calTitleMonth {
+  font-size: 36rpx;
+  color: $color-wine;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.calWeekHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4rpx;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid rgba(212, 184, 122, 0.25);
+}
+
+.calWeekHeaderCell {
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: $color-wine;
+  padding: 4rpx 0;
+  letter-spacing: 2rpx;
+}
+
+.calWeekHeaderCellWeekend {
+  color: $color-gold-deep;
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4rpx;
+}
+
+.calCell {
+  aspect-ratio: 1;
+  border-radius: 14rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.calCell:active {
+  background: rgba(212, 184, 122, 0.2);
+}
+
+.calCellOutMonth {
+  opacity: 0.35;
+}
+
+.calCellDisabled {
+  cursor: not-allowed;
+  opacity: 0.25;
+}
+
+.calCellDisabled:active {
+  background: transparent;
+}
+
+.calCellToday {
+  border: 2rpx solid $color-gold;
+}
+
+.calCellSelected {
+  background: $color-wine;
+  border: 2rpx solid $color-wine;
+  box-shadow: 0 2rpx 8rpx rgba(89, 32, 46, 0.3);
+}
+
+.calCellText {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: $color-wine;
+  line-height: 1;
+}
+
+.calCellWeekend .calCellText {
+  color: $color-gold-deep;
+}
+
+.calCellTextSelected {
+  color: $color-gold !important;
+  font-weight: 700;
+}
+
+.calTodayDot {
+  position: absolute;
+  bottom: 8rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: $color-gold;
+}
+
+.calLegend {
+  display: flex;
+  justify-content: center;
+  gap: 24rpx;
+  padding: 16rpx 0 4rpx;
+  font-size: 20rpx;
+  color: $color-gold-deep;
+}
+
+.calLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.calLegendDot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 4rpx;
+}
+
+.calLegendDotToday {
+  border: 2rpx solid $color-gold;
+  background: transparent;
+}
+
+.calLegendDotSelected {
+  background: $color-wine;
+}
+
+.calLegendDotDisabled {
+  background: rgba(112, 54, 67, 0.15);
+}

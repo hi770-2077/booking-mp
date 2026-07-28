@@ -1,0 +1,154 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-card;
+  padding: 24rpx 32rpx;
+}
+
+.storeTabs {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+  background: rgba(89, 32, 46, 0.05);
+  border-radius: 16rpx;
+  padding: 8rpx;
+}
+
+.storeTab {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  font-size: 26rpx;
+  border-radius: 12rpx;
+  color: $color-wine-soft;
+  background: transparent;
+  border: none;
+  line-height: 1;
+}
+
+.storeTab::after {
+  border: none;
+}
+
+.storeTabActive {
+  background: $color-wine;
+  color: $color-gold;
+  font-weight: 600;
+}
+
+.bookingCard {
+  background: $color-bg-card-alt;
+  border: 2rpx solid $color-border;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: $shadow-card;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.cardTitle {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: $color-wine;
+}
+
+.statusBadge {
+  font-size: 22rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  background: rgba(46, 125, 50, 0.12);
+  color: $color-success;
+  font-weight: 500;
+}
+
+.statusCancelled {
+  background: rgba(198, 40, 40, 0.12);
+  color: $color-error;
+}
+
+.statusCompleted {
+  background: rgba(139, 105, 20, 0.12);
+  color: $color-gold-deep;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 8rpx 0;
+  font-size: 26rpx;
+  color: $color-wine-soft;
+}
+
+.metaLabel {
+  color: $color-text-tertiary;
+  width: 120rpx;
+  flex-shrink: 0;
+}
+
+.metaValue {
+  color: $color-wine;
+  flex: 1;
+}
+
+.priceValue {
+  color: $color-wine-deep;
+  font-weight: 700;
+  font-size: 28rpx;
+}
+
+.actions {
+  margin-top: 24rpx;
+  display: flex;
+  gap: 16rpx;
+  justify-content: flex-end;
+}
+
+.cancelBtn {
+  font-size: 26rpx;
+  padding: 12rpx 32rpx;
+  border-radius: 32rpx;
+  border: 2rpx solid $color-error;
+  color: $color-error;
+  background: transparent;
+  line-height: 1;
+}
+
+.cancelBtn::after {
+  border: none;
+}
+
+.empty {
+  padding: 160rpx 0;
+  text-align: center;
+  color: $color-wine-soft;
+  font-size: 28rpx;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.4;
+}
+
+.bookBtn {
+  margin-top: 32rpx;
+  padding: 24rpx 64rpx;
+  border-radius: 48rpx;
+  background: $color-gold;
+  color: $color-wine;
+  font-size: 28rpx;
+  font-weight: 600;
+  border: none;
+}
+
+.bookBtn::after {
+  border: none;
+}

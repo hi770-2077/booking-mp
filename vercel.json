@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ],
+  "env": {
+    "MP_APPID": "@mp_appid",
+    "MP_SECRET": "@mp_secret",
+    "MINI_APPID": "@mini_appid",
+    "MINI_SECRET": "@mini_secret",
+    "STAFF_TMPL_ID": "@staff_tmpl_id"
+  },
+  "crons": [
+    {
+      "path": "/api/scheduler",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

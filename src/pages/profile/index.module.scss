@@ -1,0 +1,112 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-card;
+  padding: 24rpx 32rpx;
+}
+
+.brandCard {
+  background: linear-gradient(135deg, $color-wine 0%, $color-wine-soft 100%);
+  border-radius: 24rpx;
+  padding: 48rpx 32rpx;
+  text-align: center;
+  margin-bottom: 32rpx;
+  color: $color-cream;
+  box-shadow: $shadow-card;
+}
+
+.brandIcon {
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+}
+
+.brandName {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: $color-gold;
+  letter-spacing: 4rpx;
+  margin-bottom: 8rpx;
+}
+
+.brandSlogan {
+  font-size: 24rpx;
+  color: rgba(212, 184, 122, 0.85);
+  letter-spacing: 2rpx;
+}
+
+.section {
+  background: $color-bg-card-alt;
+  border-radius: 24rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  padding: 24rpx 32rpx 16rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: $color-wine;
+  border-bottom: 1rpx dashed $color-border;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 32rpx;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.cellLast {
+  border-bottom: none;
+}
+
+.cellLabel {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  font-size: 28rpx;
+  color: $color-wine;
+}
+
+.cellIcon {
+  font-size: 32rpx;
+  width: 40rpx;
+}
+
+.cellValue {
+  font-size: 26rpx;
+  color: $color-wine-soft;
+  text-align: right;
+}
+
+.copyBtn {
+  font-size: 22rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
+  background: $color-gold;
+  color: $color-wine;
+  border: none;
+  margin-left: 16rpx;
+  line-height: 1.4;
+}
+
+.copyBtn::after {
+  border: none;
+}
+
+.about {
+  text-align: center;
+  padding: 32rpx 0;
+  color: $color-wine-soft;
+  font-size: 22rpx;
+  line-height: 1.7;
+}
+
+.aboutVersion {
+  margin-bottom: 8rpx;
+  color: $color-text-tertiary;
+  font-size: 20rpx;
+}

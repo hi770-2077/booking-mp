@@ -1,0 +1,50 @@
+// ============================================
+// 主题配色变量 - 潇洒佳人美学空间
+// 沿用 H5 版品牌色：酒红 + 米色 + 金色
+// ============================================
+
+// 品牌主色 - 酒红系
+$color-wine: #59202E;          // 外层背景、主标题
+$color-wine-deep: #3D141C;     // 价格大字
+$color-wine-soft: #703643;     // 套餐名/服务名
+
+// 辅助色 - 米色
+$color-cream: #F7F2E9;         // 拱形容器、按钮文字
+$color-cream-deep: #E8DDC8;    // 米色加深（hover/分割）
+
+// 强调色 - 金色
+$color-gold: #D4B87A;          // 金边、强调色
+$color-gold-deep: #8B6914;     // 副标题、提示文字
+$color-gold-light: #E8D3A0;    // 金色亮态（hover）
+
+// 状态色
+$color-success: #2E7D32;
+$color-warning: #F57C00;
+$color-error: #C62828;
+
+// 文本色（基于米色背景上）
+$color-text-primary: $color-wine;       // 主标题 #59202E
+$color-text-secondary: $color-wine-soft; // 副文本 #703643
+$color-text-tertiary: #8a7a6e;          // 辅助文本
+$color-text-disabled: #b8a99a;
+$color-text-inverse: $color-cream;      // 反色（深底用米色字）
+
+// 背景色
+$color-bg-page: $color-wine;            // 整页背景
+$color-bg-card: $color-cream;           // 卡片背景（米色）
+$color-bg-card-alt: #ffffff;            // 卡片白底
+$color-bg-overlay: rgba(0, 0, 0, 0.55); // 弹窗遮罩
+$color-bg-mask: rgba(89, 32, 46, 0.92); // 顶部酒红遮罩
+
+// 边框色
+$color-border: rgba(212, 184, 122, 0.4);
+$color-border-strong: $color-gold;
+$color-divider: $color-gold-deep;
+
+// 价格/折扣色
+$color-price: $color-wine-deep;
+$color-price-strike: rgba(112, 54, 67, 0.45);
+$color-discount: $color-wine;
+
+// 徽章背景
+$color-tag-bg: rgba(212, 184, 122, 0.15);

@@ -152,6 +152,12 @@ async function handleNotifyStaff(req: VercelRequest, res: VercelResponse) {
   );
 
   const token = await getMpToken();
+  // 门店名映射
+  const STORE_NAMES: Record<string, string> = {
+    wenshan: '潇洒佳人美学空间·文山店',
+  };
+  const storeName = STORE_NAMES[booking.storeId] || booking.storeId;
+
   const results = [];
   for (const s of storeStaff) {
     const r = await axios.post(
@@ -159,16 +165,24 @@ async function handleNotifyStaff(req: VercelRequest, res: VercelResponse) {
       {
         touser: s.mpOpenid,
         template_id: CONFIG.STAFF_TMPL_ID,
+        // 关键词顺序（与微信公众平台模板配置一致）：
+        //   keyword1 = 预约人
+        //   keyword2 = 联系电话
+        //   keyword3 = 预约项目
+        //   keyword4 = 预约时间
+        //   keyword5 = 预约门店
         data: {
-          first: { value: '�� 新预约' },
-          keyword1: { value: booking.service },
-          keyword2: { value: `${booking.date} ${booking.startTime}` },
-          keyword3: { value: booking.customerName || booking.phone },
-          remark: { value: '潇洒佳人美学空间' },
+          first: { value: '🔔 您有一条新预约，请及时处理' },
+          keyword1: { value: booking.customerName || '未填写' },
+          keyword2: { value: booking.phone || '未填写' },
+          keyword3: { value: booking.service || '未填写' },
+          keyword4: { value: `${booking.date} ${booking.startTime}` },
+          keyword5: { value: storeName },
+          remark: { value: '请提前准备服务并与顾客确认' },
         },
       },
     );
-    results.push({ name: s.name, ok: r.data.errcode === 0 });
+    results.push({ name: s.name, ok: r.data.errcode === 0, errcode: r.data.errcode, errmsg: r.data.errmsg });
   }
   return res.json({ ok: true, notified: results.length, results });
 }

@@ -19,7 +19,6 @@
     "MINI_SECRET": "@mini_secret",
     "STAFF_TMPL_ID": "@staff_tmpl_id"
   },
-  "_crons_disabled_note": "Hobby plan limited to daily cron; reminders are handled by frontend setTimeout (1h/30m) and customer-initiated subscription messages",
   "crons": [
     {
       "path": "/api/scheduler",

@@ -4,11 +4,35 @@
 //   - login: 获取 openid（小程序身份标识）
 //   - getPhoneNumber: 一键获取手机号（需 button open-type=getPhoneNumber）
 //   - generateMiniCode: 生成小程序码（让顾客扫码绑定）
+//   - getUserProfile: 获取微信昵称+头像（用户主动授权）
+//   - chooseContact: 拉起手机通讯录选择联系人
+//   - addPhoneContact: 添加门店电话到通讯录
+//   - makePhoneCall: 一键拨打门店电话
+//   - requirePrivacyAuthorize: 隐私协议授权（合规）
 //
 // 注：所有"发送通知"的接口必须经过服务端，前端只能"请求授权"和"上报订阅凭证"。
 
 import Taro from '@tarojs/taro';
 import type { CustomerPhone, AdminNotification } from '@/types';
+
+// === 平台判断 ===
+export function isWechatMp(): boolean {
+  // #ifdef MP-WEIXIN
+  return true;
+  // #endif
+  // #ifndef MP-WEIXIN
+  return false;
+  // #endif
+}
+
+export function isH5(): boolean {
+  // #ifdef H5
+  return true;
+  // #endif
+  // #ifndef H5
+  return false;
+  // #endif
+}
 
 // === 配置：模板 ID（需要在微信公众平台后台申请）===
 export const WX_TMPL_IDS = {
@@ -167,4 +191,215 @@ export function navigateToMiniCode(scene: string): void {
   Taro.navigateTo({
     url: `/pages/qrcode/index?scene=${encodeURIComponent(scene)}`,
   });
+}
+
+// ============================================================
+// === 以下为 2026 年微信新增能力扩展 ===
+// ============================================================
+
+// === 7. 获取微信用户信息（昵称 + 头像） ===
+// 用法：
+//   <Button onClick={handleGetProfile}>获取微信昵称</Button>
+//   const handleGetProfile = () => wxGetUserProfile().then(...)
+//
+// 注意：必须在用户点击事件中调用，否则微信会拒绝
+export interface UserProfile {
+  nickName: string;
+  avatarUrl: string;
+  gender: 0 | 1 | 2;
+  country: string;
+  province: string;
+  city: string;
+}
+
+export async function wxGetUserProfile(
+  desc = '用于显示您的预约人昵称和头像',
+): Promise<UserProfile | null> {
+  // #ifdef MP-WEIXIN
+  try {
+    const res = await Taro.getUserProfile({ desc });
+    if (res.userInfo) {
+      console.info('[WxProfile] 成功', res.userInfo.nickName);
+      return res.userInfo as UserProfile;
+    }
+  } catch (e: any) {
+    console.warn('[WxProfile] 失败', e?.errMsg || e);
+  }
+  // #endif
+  return null;
+}
+
+// === 8. 从手机通讯录选择联系人 ===
+// 用法：
+//   <Button openType="chooseContact" onChooseContact={handleChooseContact}>从通讯录选择</Button>
+//   const handleChooseContact = (e) => {
+//     const { phoneNumber, displayName } = e.detail;
+//     // 自动填充手机号 + 姓名
+//   }
+//
+// 注：此 API 必须通过 <button open-type="chooseContact"> 触发，不能用 JS 直接调用
+export interface ContactInfo {
+  phoneNumber: string;       // 主手机号
+  displayName: string;       // 联系人姓名
+  phoneNumberList: string[]; // 所有手机号（部分 Android 只有列表）
+}
+
+export function parseChooseContactEvent(
+  detail: any,
+): ContactInfo | null {
+  if (!detail) return null;
+  return {
+    phoneNumber: detail.phoneNumber || '',
+    displayName: detail.displayName || '',
+    phoneNumberList: detail.phoneNumberList || [],
+  };
+}
+
+// === 9. 添加门店到通讯录（让顾客一键保存到手机） ===
+// 用法：
+//   wxAddPhoneContact({ firstName: '潇洒佳人美学空间', mobilePhoneNumber: '021-xxxx' })
+export async function wxAddPhoneContact(opts: {
+  firstName: string;          // 联系人姓名
+  mobilePhoneNumber?: string; // 手机号
+  workPhoneNumber?: string;   // 工作电话（门店座机）
+  organization?: string;      // 公司/门店名
+  title?: string;             // 职位/标签
+  remark?: string;            // 备注
+}): Promise<boolean> {
+  // #ifdef MP-WEIXIN
+  return new Promise((resolve) => {
+    Taro.addPhoneContact({
+      ...opts,
+      success: () => {
+        console.info('[WxContact] 添加成功');
+        resolve(true);
+      },
+      fail: (e: any) => {
+        console.warn('[WxContact] 添加失败', e?.errMsg);
+        resolve(false);
+      },
+    });
+  });
+  // #endif
+  // #ifndef MP-WEIXIN
+  return false;
+  // #endif
+}
+
+// === 10. 一键拨打门店电话 ===
+export async function wxMakePhoneCall(phoneNumber: string): Promise<boolean> {
+  // #ifdef MP-WEIXIN
+  return new Promise((resolve) => {
+    Taro.makePhoneCall({
+      phoneNumber,
+      success: () => resolve(true),
+      fail: (e: any) => {
+        console.warn('[WxCall] 拨打失败', e?.errMsg);
+        resolve(false);
+      },
+    });
+  });
+  // #endif
+  // #ifndef MP-WEIXIN
+  console.log('[WxCall] H5 暂不支持拨打', phoneNumber);
+  return false;
+  // #endif
+}
+
+// === 11. 隐私协议授权（合规必备） ===
+// 微信要求 2023 年 9 月起所有小程序必须接入隐私协议弹窗
+// 必须在调用 getUserProfile/chooseContact/getPhoneNumber 等敏感接口前确认用户已同意
+
+export interface PrivacySetting {
+  needAuthorization: boolean;
+  privacyContractName?: string;
+}
+
+export async function wxGetPrivacySetting(): Promise<PrivacySetting> {
+  // #ifdef MP-WEIXIN
+  return new Promise((resolve) => {
+    if (typeof Taro.getPrivacySetting !== 'function') {
+      resolve({ needAuthorization: false });
+      return;
+    }
+    Taro.getPrivacySetting({
+      success: (res: any) =>
+        resolve({
+          needAuthorization: !!res.needAuthorization,
+          privacyContractName: res.privacyContractName,
+        }),
+      fail: () => resolve({ needAuthorization: false }),
+    });
+  });
+  // #endif
+  // #ifndef MP-WEIXIN
+  return { needAuthorization: false };
+  // #endif
+}
+
+export async function wxRequirePrivacyAuthorize(): Promise<boolean> {
+  // #ifdef MP-WEIXIN
+  return new Promise((resolve) => {
+    if (typeof Taro.requirePrivacyAuthorize !== 'function') {
+      resolve(true);
+      return;
+    }
+    Taro.requirePrivacyAuthorize({
+      success: () => {
+        console.info('[WxPrivacy] 用户已同意隐私协议');
+        resolve(true);
+      },
+      fail: (e: any) => {
+        console.warn('[WxPrivacy] 用户拒绝隐私协议', e?.errMsg);
+        resolve(false);
+      },
+    });
+  });
+  // #endif
+  // #ifndef MP-WEIXIN
+  return true;
+  // #endif
+}
+
+export async function wxOpenPrivacyContract(): Promise<void> {
+  // #ifdef MP-WEIXIN
+  if (typeof Taro.openPrivacyContract === 'function') {
+    Taro.openPrivacyContract({});
+  }
+  // #endif
+}
+
+// === 12. 一键获取手机号（Button openType="getPhoneNumber"） ===
+// 此接口必须在 <Button openType="getPhoneNumber"> 的回调中触发
+// 微信返回 encryptedData + iv 或 cloudID，需要后端解密才能拿到真实手机号
+//
+// H5 / 其他环境降级：手动输入
+export interface PhoneAuthEvent {
+  detail: {
+    errMsg: string;
+    encryptedData?: string;
+    iv?: string;
+    cloudID?: string;
+    code?: string;          // 微信新版返回 code
+  };
+}
+
+// === 13. 统一的"拉取会员卡"流程（先隐私协议 → 再 getUserProfile）===
+export async function fetchMemberCardWithProfile(): Promise<UserProfile | null> {
+  // 1. 先检查隐私协议
+  const privacy = await wxGetPrivacySetting();
+  if (privacy.needAuthorization) {
+    const accepted = await wxRequirePrivacyAuthorize();
+    if (!accepted) {
+      Taro.showToast({ title: '需要先同意隐私协议', icon: 'none' });
+      return null;
+    }
+  }
+  // 2. 拉取用户信息
+  return await wxGetUserProfile();
+}
+
+// === 14. 模拟手机号（开发环境） ===
+export function mockPhone(): string {
+  return '138' + String(Date.now()).slice(-8);
 }

@@ -1,9 +1,9 @@
 {
   "miniprogramRoot": "dist/",
   "cloudfunctionRoot": "cloudfunctions/",
-  "projectname": "taro_template",
-  "description": "taro_template",
-  "appid": "touristappid",
+  "projectname": "booking-mp",
+  "description": "潇洒佳人美学空间预约系统",
+  "appid": "wx75c67a79820b9a4f",
   "setting": {
     "urlCheck": true,
     "es6": false,

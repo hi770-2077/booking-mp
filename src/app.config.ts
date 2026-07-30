@@ -12,6 +12,18 @@ export default defineAppConfig({
     navigationBarTextStyle: 'white',
     backgroundColor: '#59202E',
   },
+  // === 微信隐私协议（2023-09 后必须声明）===
+  // 注：chooseContact / addPhoneContact 不需要在 requiredPrivateInfos 中声明
+  // 它们通过 button open-type 触发，隐私由用户主动确认
+  // requiredPrivateInfos: [],  // 暂未使用位置 API，保持空数组
+  permission: {
+    'scope.userLocation': {
+      desc: '用于显示附近门店',
+    },
+  },
+  // tabBar 图标说明：
+  //   - H5 构建：使用 .svg（webpack 自动支持）
+  //   - 小程序构建：scripts/svg2png.js 自动转 .png，并修改 dist/app.json
   tabBar: {
     color: '#999999',
     selectedColor: '#59202E',

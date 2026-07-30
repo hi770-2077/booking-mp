@@ -7,6 +7,8 @@ import type {
   ReminderRecord,
   AdminNotification,
   AdminConfig,
+  MemberCard,
+  LastBookingSnapshot,
 } from '@/types';
 import { SEED_BOOKINGS } from '@/data/bookings';
 
@@ -19,6 +21,9 @@ const KEYS = {
   notifications: 'xiaosa_admin_notifications_v1',
   admin: 'xiaosa_admin_config_v1',
   adminAuth: 'xiaosa_admin_auth_v1', // 登录态
+  memberCard: 'xiaosa_member_card_v1', // 会员卡（昵称+头像+手机号）
+  lastBooking: 'xiaosa_last_booking_v1', // 上次预约快照（一键复用）
+  privacyAccepted: 'xiaosa_privacy_accepted_v1', // 隐私协议已同意
 } as const;
 
 // === 通用读写 ===
@@ -92,3 +97,18 @@ export const setAdminAuthed = (v: boolean): void => set(KEYS.adminAuth, v);
 
 // === 工具：构造容量 key ===
 export const capKey = (date: string, time: string): string => `${date}|${time}`;
+
+// === 会员卡 / 一键复用 ===
+export const loadMemberCard = (): MemberCard | null =>
+  get<MemberCard | null>(KEYS.memberCard, null);
+export const saveMemberCard = (card: MemberCard): void => set(KEYS.memberCard, card);
+export const clearMemberCard = (): void => set(KEYS.memberCard, null);
+
+export const loadLastBooking = (): LastBookingSnapshot | null =>
+  get<LastBookingSnapshot | null>(KEYS.lastBooking, null);
+export const saveLastBooking = (snap: LastBookingSnapshot): void => set(KEYS.lastBooking, snap);
+export const clearLastBooking = (): void => set(KEYS.lastBooking, null);
+
+// === 隐私协议 ===
+export const isPrivacyAccepted = (): boolean => get<boolean>(KEYS.privacyAccepted, false);
+export const setPrivacyAccepted = (v: boolean): void => set(KEYS.privacyAccepted, v);

@@ -109,3 +109,33 @@ export interface AdminConfig {
   reminderEnabled: boolean; // 是否启用预约提醒
   reminderChannels: ('inApp' | 'wechat')[]; // 提醒渠道
 }
+
+// === 会员卡 / 一键复用 ===
+export interface MemberCard {
+  // === 微信身份 ===
+  openid?: string;
+  unionid?: string;
+  // === 用户信息（来自 wx.getUserProfile）===
+  nickname?: string;
+  avatarUrl?: string;
+  gender?: 0 | 1 | 2;
+  country?: string;
+  province?: string;
+  city?: string;
+  // === 联系方式 ===
+  phone?: string;
+  // === 元信息 ===
+  firstUsedAt: string;     // 首次使用时间
+  lastUsedAt: string;      // 上次使用时间
+  bookingCount: number;    // 累计预约次数
+}
+
+// === 上次预约快照（一键复用）===
+export interface LastBookingSnapshot {
+  phone: string;
+  name?: string;
+  packageId: string;       // 上次选的项目
+  storeId: string;         // 上次选的门店
+  timePreference?: 'morning' | 'noon' | 'afternoon' | 'evening'; // 时段偏好
+  savedAt: string;
+}

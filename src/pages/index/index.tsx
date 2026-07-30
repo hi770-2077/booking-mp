@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, Input, Button } from '@tarojs/components';
+import { View, Text, ScrollView, Input, Button, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import classNames from 'classnames';
 import { STORES } from '@/data/stores';
@@ -12,6 +12,24 @@ import {
   countSlots,
 } from '@/utils/scheduler';
 import type { Booking, PackageItem, Store } from '@/types';
+import {
+  wxGetUserProfile,
+  wxGetPrivacySetting,
+  wxRequirePrivacyAuthorize,
+  wxMakePhoneCall,
+  wxAddPhoneContact,
+  isWechatMp,
+} from '@/services/wechat';
+import {
+  getMemberCard,
+  hasMemberCard,
+  updateCardFromWechat,
+  updateCardPhone,
+  incrementBookingCount,
+  getLastSnapshot,
+  canReuseSnapshot,
+  saveLastSnapshot,
+} from '@/services/member-card';
 import styles from './index.module.scss';
 
 // ──────────────────────────────────────────────────────
@@ -24,6 +42,12 @@ function pad(n: number): string {
 }
 function fmt(y: number, m: number, d: number): string {
   return `${y}-${pad(m)}-${pad(d)}`;
+}
+
+/** 手机号脱敏：138****5678 */
+function maskPhone(phone: string): string {
+  if (!phone || phone.length !== 11) return phone;
+  return `${phone.slice(0, 3)}****${phone.slice(7)}`;
 }
 function getMonthGrid(year: number, month: number): Array<{
   y: number;
@@ -205,6 +229,12 @@ const IndexPage: React.FC = () => {
   const [phoneInput, setPhoneInput] = useState('');
   const [phoneNameInput, setPhoneNameInput] = useState('');
 
+  // === 会员卡 / 一键复用 ===
+  const [memberCard, setMemberCard] = useState(() => getMemberCard());
+  const [lastSnap, setLastSnap] = useState(() =>
+    canReuseSnapshot() ? getLastSnapshot() : null,
+  );
+
   // store
   const bookings = useBookingStore((s) => s.bookings);
   const addBooking = useBookingStore((s) => s.addBooking);
@@ -315,6 +345,24 @@ const IndexPage: React.FC = () => {
     });
     // 保存到手机号簿
     addPhone(phone, phoneNameInput.trim() || undefined);
+    // === 保存会员卡（更新手机号 + 累计预约数） ===
+    updateCardPhone(phone);
+    const updatedCard = incrementBookingCount();
+    setMemberCard(updatedCard);
+    // === 保存预约快照（一键复用） ===
+    saveLastSnapshot({
+      phone,
+      name: phoneNameInput.trim() || undefined,
+      packageId: selectedPackage.id,
+      storeId,
+    });
+    setLastSnap({
+      phone,
+      name: phoneNameInput.trim() || undefined,
+      packageId: selectedPackage.id,
+      storeId,
+      savedAt: new Date().toISOString(),
+    });
     setShowPhoneModal(false);
     setPhoneInput('');
     setPhoneNameInput('');
@@ -325,6 +373,81 @@ const IndexPage: React.FC = () => {
   const handleCancelBooking = (id: string) => {
     cancelBooking(id);
     showToast('已取消', 'success');
+  };
+
+  // === 一键复用：填入手机号 + 名字 + 切到上次项目/门店 ===
+  const handleOneClickReuse = () => {
+    if (!lastSnap) return;
+    // 填手机号/名字
+    setPhoneInput(lastSnap.phone);
+    setPhoneNameInput(lastSnap.name || '');
+    // 切到上次的项目
+    if (lastSnap.packageId) {
+      setSelectedPackageId(lastSnap.packageId);
+    }
+    // 切到上次的门店
+    if (lastSnap.storeId) {
+      setStoreId(lastSnap.storeId);
+    }
+    showToast('✓ 已填入上次预约信息', 'success');
+  };
+
+  // === 微信拉取：获取昵称 + 头像 ===
+  const handleWxGetProfile = async () => {
+    // 隐私协议前置
+    const setting = await wxGetPrivacySetting();
+    if (setting.needAuthorization) {
+      const ok = await wxRequirePrivacyAuthorize();
+      if (!ok) {
+        showToast('需要先同意隐私协议', 'error');
+        return;
+      }
+    }
+    const profile = await wxGetUserProfile('用于显示您的预约人昵称和头像');
+    if (profile) {
+      const card = updateCardFromWechat(profile);
+      setMemberCard(card);
+      // 自动填到备注名（如果备注名是空的）
+      if (!phoneNameInput) setPhoneNameInput(profile.nickName);
+      showToast(`✓ 已获取：${profile.nickName}`, 'success');
+    } else {
+      showToast('未获取到信息', 'error');
+    }
+  };
+
+  // === 选择通讯录联系人（<button open-type="chooseContact">）===
+  const handleChooseContact = (e: any) => {
+    const phoneNumber = e?.detail?.phoneNumber || '';
+    const displayName = e?.detail?.displayName || '';
+    if (!phoneNumber) {
+      // 用户取消选择
+      return;
+    }
+    setPhoneInput(phoneNumber);
+    if (displayName && !phoneNameInput) {
+      setPhoneNameInput(displayName);
+    }
+    // 缓存到会员卡
+    updateCardPhone(phoneNumber);
+    showToast('✓ 已从通讯录填入', 'success');
+  };
+
+  // === 一键拨号 ===
+  const handleCallStore = async () => {
+    await wxMakePhoneCall(currentStore.phone);
+  };
+
+  // === 保存门店到通讯录 ===
+  const handleSaveStoreToContacts = async () => {
+    const ok = await wxAddPhoneContact({
+      firstName: currentStore.name,
+      mobilePhoneNumber: currentStore.phone,
+      organization: '潇洒佳人美学空间',
+      title: '门店预约',
+      remark: `${currentStore.address} | 营业时间 ${currentStore.businessHours}`,
+    });
+    if (ok) showToast('✓ 已保存到通讯录', 'success');
+    else showToast('保存失败，请手动添加', 'error');
   };
 
   const confirmedCount = storeBookings.filter((b) => b.status === 'confirmed').length;
@@ -991,11 +1114,92 @@ const IndexPage: React.FC = () => {
               </Button>
             </View>
 
-            {/* 手机号簿 - 历史选择 */}
-            {phones.length > 0 && (
+            {/* ========== 会员卡视图（如果有）========== */}
+            {memberCard && (memberCard.nickname || memberCard.phone) && (
+              <View className={styles.memberCard}>
+                <View className={styles.memberCardHeader}>
+                  <View className={styles.memberCardAvatar}>
+                    {(() => {
+                      const initial = (memberCard.nickname || memberCard.phone || '客')[0];
+                      if (memberCard.avatarUrl && isWechatMp()) {
+                        return (
+                          <Image
+                            src={memberCard.avatarUrl}
+                            className={styles.memberCardAvatarImg}
+                            mode="aspectFill"
+                          />
+                        );
+                      }
+                      return (
+                        <Text className={styles.memberCardAvatarText}>{initial}</Text>
+                      );
+                    })()}
+                  </View>
+                  <View className={styles.memberCardInfo}>
+                    <Text className={styles.memberCardName}>
+                      💎 {memberCard.nickname || '会员'}
+                      {memberCard.phone && (
+                        <Text className={styles.memberCardPhoneInline}>
+                          {'  '}{maskPhone(memberCard.phone)}
+                        </Text>
+                      )}
+                    </Text>
+                    <Text className={styles.memberCardMeta}>
+                      已预约 {memberCard.bookingCount || 0} 次 · 会员尊享
+                    </Text>
+                  </View>
+                </View>
+
+                {/* 超大一键复用按钮 */}
+                {lastSnap && (
+                  <Button
+                    className={styles.reuseBigBtn}
+                    onClick={handleOneClickReuse}
+                  >
+                    <View className={styles.reuseBigBtnInner}>
+                      <Text className={styles.reuseBigBtnTitle}>
+                        ⚡ 一键复用上次预约
+                      </Text>
+                      <Text className={styles.reuseBigBtnDesc}>
+                        {lastSnap.phone}
+                        {lastSnap.name ? ` · ${lastSnap.name}` : ''}
+                        {' · '}
+                        {PACKAGES.find((p) => p.id === lastSnap.packageId)?.title || ''}
+                      </Text>
+                    </View>
+                  </Button>
+                )}
+              </View>
+            )}
+
+            {/* ========== 微信一键拉取 + 通讯录选择 ========== */}
+            <View className={styles.wxQuickRow}>
+              {!memberCard?.nickname && (
+                <Button
+                  className={styles.wxQuickBtn}
+                  onClick={handleWxGetProfile}
+                >
+                  <Text className={styles.wxQuickBtnText}>
+                    👤 微信一键填入
+                  </Text>
+                </Button>
+              )}
+              <Button
+                className={styles.wxQuickBtn}
+                openType="chooseContact"
+                onChooseContact={handleChooseContact}
+              >
+                <Text className={styles.wxQuickBtnText}>
+                  📱 从通讯录选
+                </Text>
+              </Button>
+            </View>
+
+            {/* ========== 历史手机号（如果有一键复用就降级显示） ========== */}
+            {phones.length > 0 && !lastSnap && (
               <View className={styles.phoneBook}>
                 <View className={styles.phoneBookHeader}>
-                  <Text>📱 常用手机号</Text>
+                  <Text className={styles.phoneBookTitle}>📱 常用手机号</Text>
                   <Text className={styles.phoneBookHint}>点击快速选择</Text>
                 </View>
                 <ScrollView scrollX className={styles.phoneBookScroll}>
@@ -1007,7 +1211,10 @@ const IndexPage: React.FC = () => {
                           styles.phoneBookItem,
                           phoneInput === p.phone && styles.phoneBookItemActive,
                         )}
-                        onClick={() => setPhoneInput(p.phone)}
+                        onClick={() => {
+                          setPhoneInput(p.phone);
+                          if (p.name) setPhoneNameInput(p.name);
+                        }}
                       >
                         <Text className={styles.phoneBookPhone}>{p.phone}</Text>
                         {p.name && <Text className={styles.phoneBookName}>{p.name}</Text>}
@@ -1019,24 +1226,34 @@ const IndexPage: React.FC = () => {
               </View>
             )}
 
-            <Input
-              className={styles.phoneInput}
-              type="number"
-              maxlength={11}
-              placeholder="请输入手机号"
-              value={phoneInput}
-              onInput={(e) => setPhoneInput(e.detail.value)}
-            />
+            {/* 手机号输入（加大字号） */}
+            <View className={styles.phoneInputWrap}>
+              <Text className={styles.phoneInputLabel}>📞 手机号</Text>
+              <Input
+                className={styles.phoneInput}
+                type="number"
+                maxlength={11}
+                placeholder="请输入手机号"
+                value={phoneInput}
+                onInput={(e) => setPhoneInput(e.detail.value)}
+              />
+            </View>
 
-            {/* 备注名（可选） */}
-            <Input
-              className={styles.phoneNameInput}
-              maxlength={10}
-              placeholder="备注名（可选，如：小美）"
-              value={phoneNameInput}
-              onInput={(e) => setPhoneNameInput(e.detail.value)}
-            />
+            {/* 备注名输入（加大字号） */}
+            <View className={styles.phoneInputWrap}>
+              <Text className={styles.phoneInputLabel}>
+                ✏️ 备注名<Text className={styles.phoneInputOptional}>（可选）</Text>
+              </Text>
+              <Input
+                className={styles.phoneInput}
+                maxlength={10}
+                placeholder="如：小美、李太太"
+                value={phoneNameInput}
+                onInput={(e) => setPhoneNameInput(e.detail.value)}
+              />
+            </View>
 
+            {/* 预约信息 */}
             <View className={styles.phoneHint}>
               <Text>
                 预约项目：{selectedPackage?.title}
@@ -1046,7 +1263,7 @@ const IndexPage: React.FC = () => {
               </Text>
             </View>
             <Button className={styles.modalActionBtn} onClick={handlePhoneConfirm}>
-              <Text>确认预约</Text>
+              <Text>✓ 确认预约</Text>
             </Button>
           </View>
         </View>
@@ -1119,6 +1336,33 @@ const IndexPage: React.FC = () => {
             >
               <Text>🔔 开启微信通知（1小时/30分钟）</Text>
             </Button>
+
+            {/* 门店快捷操作：保存到通讯录 + 拨打电话 */}
+            <View className={styles.storeActions}>
+              <Button
+                className={styles.storeActionBtn}
+                openType="addPhoneContact"
+                onClick={handleSaveStoreToContacts}
+              >
+                <Text className={styles.storeActionBtnText}>
+                  📇 保存门店
+                </Text>
+                <Text className={styles.storeActionBtnDesc}>
+                  一键添加到手机
+                </Text>
+              </Button>
+              <Button
+                className={styles.storeActionBtn}
+                onClick={handleCallStore}
+              >
+                <Text className={styles.storeActionBtnText}>
+                  📞 拨打门店
+                </Text>
+                <Text className={styles.storeActionBtnDesc}>
+                  {currentStore.phone}
+                </Text>
+              </Button>
+            </View>
           </View>
         </View>
       )}

@@ -18,12 +18,16 @@ import {
   wxRequirePrivacyAuthorize,
   wxMakePhoneCall,
   wxAddPhoneContact,
+  parseChooseAvatarEvent,
+  wxDecryptPhone,
   isWechatMp,
 } from '@/services/wechat';
 import {
   getMemberCard,
   hasMemberCard,
   updateCardFromWechat,
+  updateCardAvatar,
+  updateCardNickname,
   updateCardPhone,
   incrementBookingCount,
   getLastSnapshot,
@@ -392,7 +396,7 @@ const IndexPage: React.FC = () => {
     showToast('✓ 已填入上次预约信息', 'success');
   };
 
-  // === 微信拉取：获取昵称 + 头像 ===
+  // === 微信拉取：获取昵称 + 头像（新版 chooseAvatar + 旧版 getUserProfile 兜底）===
   const handleWxGetProfile = async () => {
     // 隐私协议前置
     const setting = await wxGetPrivacySetting();
@@ -403,6 +407,7 @@ const IndexPage: React.FC = () => {
         return;
       }
     }
+    // 旧版 API 仍可用
     const profile = await wxGetUserProfile('用于显示您的预约人昵称和头像');
     if (profile) {
       const card = updateCardFromWechat(profile);
@@ -411,7 +416,61 @@ const IndexPage: React.FC = () => {
       if (!phoneNameInput) setPhoneNameInput(profile.nickName);
       showToast(`✓ 已获取：${profile.nickName}`, 'success');
     } else {
-      showToast('未获取到信息', 'error');
+      // 引导用户用新版（chooseAvatar + 输入昵称）
+      showToast('请用下方头像/昵称功能', 'error');
+    }
+  };
+
+  // === 新版：选择微信头像 ===
+  const handleChooseAvatar = (e: any) => {
+    const parsed = parseChooseAvatarEvent(e?.detail);
+    if (parsed?.avatarUrl) {
+      const card = updateCardAvatar(parsed.avatarUrl);
+      setMemberCard(card);
+      showToast('✓ 头像已更新', 'success');
+    }
+  };
+
+  // === 新版：昵称输入变化（自动保存）===
+  const handleNicknameChange = (val: string) => {
+    setPhoneNameInput(val);
+    // 简单防抖：直接保存
+    if (val && val.length >= 1) {
+      const card = updateCardNickname(val);
+      setMemberCard(card);
+    }
+  };
+
+  // === 一键获取用户微信手机号（getPhoneNumber 按钮回调）===
+  const handleGetPhoneNumber = async (e: any) => {
+    if (e?.detail?.errMsg && !e.detail.errMsg.includes('ok')) {
+      // 用户拒绝授权
+      showToast('已取消手机号授权', 'error');
+      return;
+    }
+    const { encryptedData, iv, code } = e?.detail || {};
+    if (code) {
+      // 新版 API（推荐）：用 code 换 phone
+      const phone = await wxDecryptPhone({ encryptedData: encryptedData || '', iv: iv || '', code });
+      if (phone) {
+        setPhoneInput(phone);
+        updateCardPhone(phone);
+        showToast(`✓ 已获取：${phone}`, 'success');
+      } else {
+        showToast('获取失败，请手动输入', 'error');
+      }
+    } else if (encryptedData && iv) {
+      // 旧版 API：需要 sessionKey
+      const phone = await wxDecryptPhone({ encryptedData, iv });
+      if (phone) {
+        setPhoneInput(phone);
+        updateCardPhone(phone);
+        showToast(`✓ 已获取：${phone}`, 'success');
+      } else {
+        showToast('获取失败，请手动输入', 'error');
+      }
+    } else {
+      showToast('未获取到手机号', 'error');
     }
   };
 
@@ -1172,18 +1231,43 @@ const IndexPage: React.FC = () => {
               </View>
             )}
 
-            {/* ========== 微信一键拉取 + 通讯录选择 ========== */}
+            {/* ========== 微信拉取（新版：chooseAvatar + 昵称输入）========== */}
+            <View className={styles.wxAvatarRow}>
+              <Button
+                className={styles.wxAvatarBtn}
+                openType="chooseAvatar"
+                onChooseAvatar={handleChooseAvatar}
+              >
+                <View className={styles.wxAvatarBtnInner}>
+                  {memberCard?.avatarUrl && isWechatMp() ? (
+                    <Image
+                      src={memberCard.avatarUrl}
+                      className={styles.wxAvatarBtnImg}
+                      mode="aspectFill"
+                    />
+                  ) : (
+                    <Text className={styles.wxAvatarBtnIcon}>📷</Text>
+                  )}
+                </View>
+                <Text className={styles.wxAvatarBtnLabel}>
+                  {memberCard?.avatarUrl ? '更换头像' : '选微信头像'}
+                </Text>
+              </Button>
+              <View className={styles.wxAvatarHint}>
+                <Text>点左侧选头像{'\n'}右侧填昵称</Text>
+              </View>
+            </View>
+
+            {/* ========== 微信一键拉取（旧版兜底）+ 通讯录选择 ========== */}
             <View className={styles.wxQuickRow}>
-              {!memberCard?.nickname && (
-                <Button
-                  className={styles.wxQuickBtn}
-                  onClick={handleWxGetProfile}
-                >
-                  <Text className={styles.wxQuickBtnText}>
-                    👤 微信一键填入
-                  </Text>
-                </Button>
-              )}
+              <Button
+                className={styles.wxQuickBtn}
+                onClick={handleWxGetProfile}
+              >
+                <Text className={styles.wxQuickBtnText}>
+                  👤 一键填入
+                </Text>
+              </Button>
               <Button
                 className={styles.wxQuickBtn}
                 openType="chooseContact"
@@ -1237,19 +1321,38 @@ const IndexPage: React.FC = () => {
                 value={phoneInput}
                 onInput={(e) => setPhoneInput(e.detail.value)}
               />
+              {/* 一键获取用户微信绑定的手机号（绿色官方按钮） */}
+              {!phoneInput && isWechatMp() && (
+                <Button
+                  className={styles.getPhoneNumberBtn}
+                  openType="getPhoneNumber"
+                  onGetPhoneNumber={handleGetPhoneNumber}
+                >
+                  <Text className={styles.getPhoneNumberBtnText}>
+                    📱 一键获取微信手机号
+                  </Text>
+                </Button>
+              )}
             </View>
 
-            {/* 备注名输入（加大字号） */}
+            {/* 备注名输入（加大字号） - 微信新版昵称填写 */}
             <View className={styles.phoneInputWrap}>
               <Text className={styles.phoneInputLabel}>
-                ✏️ 备注名<Text className={styles.phoneInputOptional}>（可选）</Text>
+                ✏️ 昵称 / 备注名<Text className={styles.phoneInputOptional}>（自动记忆）</Text>
               </Text>
               <Input
                 className={styles.phoneInput}
-                maxlength={10}
-                placeholder="如：小美、李太太"
+                type="nickname"
+                maxlength={16}
+                placeholder="点击填写您的昵称（如：小美）"
                 value={phoneNameInput}
-                onInput={(e) => setPhoneNameInput(e.detail.value)}
+                onInput={(e) => handleNicknameChange(e.detail.value)}
+                onFocus={() => {
+                  // 真机上点击会让微信弹"获取你的昵称"提示
+                  if (isWechatMp()) {
+                    showToast('💡 可直接选择微信昵称', 'success');
+                  }
+                }}
               />
             </View>
 

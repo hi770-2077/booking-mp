@@ -1657,6 +1657,78 @@
   margin-bottom: 20rpx;
 }
 
+// === 新版：chooseAvatar 头像选择行 ===
+.wxAvatarRow {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+  padding: 20rpx;
+  background: linear-gradient(135deg, rgba(212, 184, 122, 0.08) 0%, rgba(212, 184, 122, 0.15) 100%);
+  border: 2rpx dashed rgba(212, 184, 122, 0.4);
+  border-radius: 16rpx;
+}
+
+.wxAvatarBtn {
+  width: 140rpx;
+  height: 140rpx;
+  padding: 0;
+  background: #fff;
+  border: 2rpx solid $color-gold;
+  border-radius: 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  overflow: hidden;
+  position: relative;
+}
+
+.wxAvatarBtn::after {
+  border: none;
+}
+
+.wxAvatarBtn:active {
+  background: rgba(212, 184, 122, 0.1);
+  transform: scale(0.96);
+}
+
+.wxAvatarBtnInner {
+  width: 90rpx;
+  height: 90rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #faf6e8 0%, #f0e2b8 100%);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.wxAvatarBtnImg {
+  width: 100%;
+  height: 100%;
+}
+
+.wxAvatarBtnIcon {
+  font-size: 48rpx;
+  line-height: 1;
+}
+
+.wxAvatarBtnLabel {
+  font-size: 18rpx;
+  color: $color-wine;
+  font-weight: 600;
+}
+
+.wxAvatarHint {
+  flex: 1;
+  font-size: 24rpx;
+  color: rgba(89, 32, 46, 0.7);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
 .wxQuickBtn {
   flex: 1;
   height: 84rpx;
@@ -1720,6 +1792,37 @@
 
 .phoneNameInput {
   composes: phoneInput;
+}
+
+// === 一键获取手机号按钮（微信绿色官方样式）===
+.getPhoneNumberBtn {
+  margin-top: 16rpx;
+  width: 100%;
+  height: 88rpx;
+  background: #07c160;  // 微信绿
+  border-radius: 16rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2rpx 8rpx rgba(7, 193, 96, 0.25);
+  position: relative;
+}
+
+.getPhoneNumberBtn::after {
+  border: none;
+}
+
+.getPhoneNumberBtn:active {
+  background: #06ad56;
+  transform: scale(0.98);
+}
+
+.getPhoneNumberBtnText {
+  font-size: 30rpx;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 1rpx;
 }
 
 // === 加大字号：手机号薄 ===

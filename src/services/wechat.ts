@@ -198,25 +198,35 @@ export function navigateToMiniCode(scene: string): void {
 // ============================================================
 
 // === 7. 获取微信用户信息（昵称 + 头像） ===
-// 用法：
-//   <Button onClick={handleGetProfile}>获取微信昵称</Button>
-//   const handleGetProfile = () => wxGetUserProfile().then(...)
+// 新版：2023-04 后推荐使用 chooseAvatar + 用户主动输入昵称
+// 旧版：getUserProfile 仍可用
 //
-// 注意：必须在用户点击事件中调用，否则微信会拒绝
+// 优先使用新版，失败回退到旧版
 export interface UserProfile {
   nickName: string;
   avatarUrl: string;
-  gender: 0 | 1 | 2;
-  country: string;
-  province: string;
-  city: string;
+  gender?: 0 | 1 | 2;
+  country?: string;
+  province?: string;
+  city?: string;
 }
 
+/** chooseAvatar 事件处理（新版） */
+export function parseChooseAvatarEvent(
+  detail: any,
+): { avatarUrl: string } | null {
+  if (!detail) return null;
+  const url = detail.avatarUrl || '';
+  return url ? { avatarUrl: url } : null;
+}
+
+/** 旧版 getUserProfile（兜底） */
 export async function wxGetUserProfile(
   desc = '用于显示您的预约人昵称和头像',
 ): Promise<UserProfile | null> {
   // #ifdef MP-WEIXIN
   try {
+    if (typeof Taro.getUserProfile !== 'function') return null;
     const res = await Taro.getUserProfile({ desc });
     if (res.userInfo) {
       console.info('[WxProfile] 成功', res.userInfo.nickName);
@@ -382,6 +392,31 @@ export interface PhoneAuthEvent {
     cloudID?: string;
     code?: string;          // 微信新版返回 code
   };
+}
+
+/** 调用后端解密手机号 */
+export async function wxDecryptPhone(opts: {
+  encryptedData: string;
+  iv: string;
+  sessionKey?: string;        // 可选
+  code?: string;              // 微信新版（推荐）
+}): Promise<string | null> {
+  try {
+    const r = await Taro.request({
+      url: 'https://booking-mp-xiaosa.vercel.app/api/wechat-mp',
+      method: 'POST',
+      data: {
+        action: 'decrypt-phone',
+        ...opts,
+      },
+      header: { 'Content-Type': 'application/json' },
+    });
+    if ((r.data as any)?.phone) return (r.data as any).phone;
+    console.warn('[WxDecryptPhone] 后端未返回 phone', r.data);
+  } catch (e: any) {
+    console.warn('[WxDecryptPhone] 失败', e?.errMsg || e);
+  }
+  return null;
 }
 
 // === 13. 统一的"拉取会员卡"流程（先隐私协议 → 再 getUserProfile）===

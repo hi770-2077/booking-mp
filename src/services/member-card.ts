@@ -45,6 +45,36 @@ export function updateCardFromWechat(profile: WxUserProfile): MemberCard {
   return card;
 }
 
+/** 仅更新头像（新版 chooseAvatar 场景） */
+export function updateCardAvatar(avatarUrl: string): MemberCard {
+  const now = new Date().toISOString().slice(0, 10);
+  const existing = loadMemberCard();
+  const card: MemberCard = {
+    ...existing,
+    avatarUrl,
+    firstUsedAt: existing?.firstUsedAt || now,
+    lastUsedAt: now,
+    bookingCount: existing?.bookingCount || 0,
+  };
+  saveMemberCard(card);
+  return card;
+}
+
+/** 仅更新昵称（用户在输入框填入） */
+export function updateCardNickname(nickname: string): MemberCard {
+  const now = new Date().toISOString().slice(0, 10);
+  const existing = loadMemberCard();
+  const card: MemberCard = {
+    ...existing,
+    nickname,
+    firstUsedAt: existing?.firstUsedAt || now,
+    lastUsedAt: now,
+    bookingCount: existing?.bookingCount || 0,
+  };
+  saveMemberCard(card);
+  return card;
+}
+
 /** 用手机号更新会员卡 */
 export function updateCardPhone(phone: string): MemberCard {
   const now = new Date().toISOString().slice(0, 10);

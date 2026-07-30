@@ -239,6 +239,9 @@ const IndexPage: React.FC = () => {
     canReuseSnapshot() ? getLastSnapshot() : null,
   );
 
+  // === 微信授权次级弹窗 ===
+  const [showWxAuthModal, setShowWxAuthModal] = useState(false);
+
   // store
   const bookings = useBookingStore((s) => s.bookings);
   const addBooking = useBookingStore((s) => s.addBooking);
@@ -421,6 +424,44 @@ const IndexPage: React.FC = () => {
     }
   };
 
+  // === 🔐 一键授权全流程（点 1 次，引导 3 步）===
+  // 由于微信隐私规则，无法 1 步同时获取头像+手机号
+  // 但能做成"1 个入口按钮 + 自动 3 步引导"
+  const handleOneClickWechatAuth = async () => {
+    if (!isWechatMp()) {
+      showToast('请在小程序中使用', 'error');
+      return;
+    }
+
+    // 隐私协议
+    showToast('① 请同意隐私协议', 'success');
+    await new Promise((r) => setTimeout(r, 800));
+    const setting = await wxGetPrivacySetting();
+    if (setting.needAuthorization) {
+      const ok = await wxRequirePrivacyAuthorize();
+      if (!ok) {
+        showToast('需要同意隐私协议', 'error');
+        return;
+      }
+    }
+
+    // 检查缺少什么，引导用户去点对应的官方按钮
+    const missing: string[] = [];
+    if (!memberCard?.avatarUrl) missing.push('头像');
+    if (!phoneInput) missing.push('手机号');
+
+    if (missing.length === 0) {
+      showToast('✓ 已全部授权', 'success');
+      return;
+    }
+
+    if (missing.length === 1) {
+      showToast(`② 请点击下方"${missing[0] === '头像' ? '选微信头像' : '一键获取微信手机号'}"按钮`, 'success');
+    } else {
+      showToast('② 请先点"选微信头像" → ③ 再点"一键获取微信手机号"', 'success');
+    }
+  };
+
   // === 新版：选择微信头像 ===
   const handleChooseAvatar = (e: any) => {
     const parsed = parseChooseAvatarEvent(e?.detail);
@@ -439,6 +480,30 @@ const IndexPage: React.FC = () => {
       const card = updateCardNickname(val);
       setMemberCard(card);
     }
+  };
+
+  // === 打开隐私协议 ===
+  const handleOpenPrivacy = () => {
+    Taro.showModal({
+      title: '用户协议和隐私政策',
+      content:
+        '潇洒佳人美学空间预约系统（以下简称"我们"）尊重并保护所有使用本小程序用户的个人隐私权。\n\n' +
+        '我们收集的信息：\n' +
+        '• 您主动填写的昵称、手机号\n' +
+        '• 您主动选择的微信头像\n' +
+        '• 您的预约记录（项目、时间、门店）\n\n' +
+        '信息用途：\n' +
+        '• 完成预约服务\n' +
+        '• 发送预约提醒通知\n' +
+        '• 改进服务质量\n\n' +
+        '您的权利：\n' +
+        '• 可随时查看、修改、删除您的信息\n' +
+        '• 可在"我的"页面清除会员卡\n' +
+        '• 可在微信中解除授权\n\n' +
+        '联系客服：189-1234-5678',
+      confirmText: '我已阅读',
+      showCancel: false,
+    });
   };
 
   // === 一键获取用户微信手机号（getPhoneNumber 按钮回调）===
@@ -1231,52 +1296,30 @@ const IndexPage: React.FC = () => {
               </View>
             )}
 
-            {/* ========== 微信拉取（新版：chooseAvatar + 昵称输入）========== */}
-            <View className={styles.wxAvatarRow}>
-              <Button
-                className={styles.wxAvatarBtn}
-                openType="chooseAvatar"
-                onChooseAvatar={handleChooseAvatar}
-              >
-                <View className={styles.wxAvatarBtnInner}>
-                  {memberCard?.avatarUrl && isWechatMp() ? (
-                    <Image
-                      src={memberCard.avatarUrl}
-                      className={styles.wxAvatarBtnImg}
-                      mode="aspectFill"
-                    />
-                  ) : (
-                    <Text className={styles.wxAvatarBtnIcon}>📷</Text>
-                  )}
-                </View>
-                <Text className={styles.wxAvatarBtnLabel}>
-                  {memberCard?.avatarUrl ? '更换头像' : '选微信头像'}
-                </Text>
-              </Button>
-              <View className={styles.wxAvatarHint}>
-                <Text>点左侧选头像{'\n'}右侧填昵称</Text>
-              </View>
-            </View>
+            {/* ========== 🔐 微信一键填入（唯一主入口）========== */}
+            <Button
+              className={styles.wxOneClickAuth}
+              onClick={() => setShowWxAuthModal(true)}
+            >
+              <Text className={styles.wxOneClickAuthTitle}>
+                🔐 微信一键填入
+              </Text>
+              <Text className={styles.wxOneClickAuthDesc}>
+                头像 + 微信昵称 + 手机号
+              </Text>
+            </Button>
 
-            {/* ========== 微信一键拉取（旧版兜底）+ 通讯录选择 ========== */}
-            <View className={styles.wxQuickRow}>
-              <Button
-                className={styles.wxQuickBtn}
-                onClick={handleWxGetProfile}
-              >
-                <Text className={styles.wxQuickBtnText}>
-                  👤 一键填入
+            {/* 隐私协议入口（必看） */}
+            <View className={styles.privacyTip}>
+              <Text className={styles.privacyTipText}>
+                点击上述按钮即表示您已阅读并同意{'\n'}
+                <Text
+                  className={styles.privacyLink}
+                  onClick={handleOpenPrivacy}
+                >
+                  《用户协议和隐私政策》
                 </Text>
-              </Button>
-              <Button
-                className={styles.wxQuickBtn}
-                openType="chooseContact"
-                onChooseContact={handleChooseContact}
-              >
-                <Text className={styles.wxQuickBtnText}>
-                  📱 从通讯录选
-                </Text>
-              </Button>
+              </Text>
             </View>
 
             {/* ========== 历史手机号（如果有一键复用就降级显示） ========== */}
@@ -1317,22 +1360,10 @@ const IndexPage: React.FC = () => {
                 className={styles.phoneInput}
                 type="number"
                 maxlength={11}
-                placeholder="请输入手机号"
+                placeholder="点上方一键填入，或手动输入"
                 value={phoneInput}
                 onInput={(e) => setPhoneInput(e.detail.value)}
               />
-              {/* 一键获取用户微信绑定的手机号（绿色官方按钮） */}
-              {!phoneInput && isWechatMp() && (
-                <Button
-                  className={styles.getPhoneNumberBtn}
-                  openType="getPhoneNumber"
-                  onGetPhoneNumber={handleGetPhoneNumber}
-                >
-                  <Text className={styles.getPhoneNumberBtnText}>
-                    📱 一键获取微信手机号
-                  </Text>
-                </Button>
-              )}
             </View>
 
             {/* 备注名输入（加大字号） - 微信新版昵称填写 */}
@@ -1368,6 +1399,88 @@ const IndexPage: React.FC = () => {
             <Button className={styles.modalActionBtn} onClick={handlePhoneConfirm}>
               <Text>✓ 确认预约</Text>
             </Button>
+          </View>
+        </View>
+      )}
+
+      {/* ========== 微信授权次级弹窗（干净简洁）========== */}
+      {showWxAuthModal && (
+        <View className={styles.modalMask}>
+          <View className={styles.wxAuthSubModal} onClick={(e) => e.stopPropagation()}>
+            <View className={styles.wxAuthSubHeader}>
+              <Text className={styles.wxAuthSubTitle}>选择授权方式</Text>
+              <Button
+                className={styles.modalClose}
+                onClick={() => setShowWxAuthModal(false)}
+              >
+                <Text>×</Text>
+              </Button>
+            </View>
+
+            <View className={styles.wxAuthSubList}>
+              {/* 1. 选微信头像 */}
+              <Button
+                className={styles.wxAuthSubItem}
+                openType="chooseAvatar"
+                onChooseAvatar={(e) => {
+                  handleChooseAvatar(e);
+                  setShowWxAuthModal(false);
+                }}
+              >
+                <Text className={styles.wxAuthSubItemIcon}>📷</Text>
+                <View className={styles.wxAuthSubItemText}>
+                  <Text className={styles.wxAuthSubItemTitle}>选微信头像</Text>
+                  <Text className={styles.wxAuthSubItemDesc}>从微信头像库选或拍照</Text>
+                </View>
+                <Text className={styles.wxAuthSubItemArrow}>›</Text>
+              </Button>
+
+              {/* 2. 获取微信手机号 */}
+              <Button
+                className={styles.wxAuthSubItem}
+                openType="getPhoneNumber"
+                onGetPhoneNumber={(e) => {
+                  handleGetPhoneNumber(e);
+                  setShowWxAuthModal(false);
+                }}
+              >
+                <Text className={styles.wxAuthSubItemIcon}>📱</Text>
+                <View className={styles.wxAuthSubItemText}>
+                  <Text className={styles.wxAuthSubItemTitle}>微信绑定手机号</Text>
+                  <Text className={styles.wxAuthSubItemDesc}>获取您微信绑定的手机号</Text>
+                </View>
+                <Text className={styles.wxAuthSubItemArrow}>›</Text>
+              </Button>
+
+              {/* 3. 从通讯录选 */}
+              <Button
+                className={styles.wxAuthSubItem}
+                openType="chooseContact"
+                onChooseContact={(e) => {
+                  handleChooseContact(e);
+                  setShowWxAuthModal(false);
+                }}
+              >
+                <Text className={styles.wxAuthSubItemIcon}>📇</Text>
+                <View className={styles.wxAuthSubItemText}>
+                  <Text className={styles.wxAuthSubItemTitle}>从通讯录选</Text>
+                  <Text className={styles.wxAuthSubItemDesc}>选择任意联系人的手机号</Text>
+                </View>
+                <Text className={styles.wxAuthSubItemArrow}>›</Text>
+              </Button>
+            </View>
+
+            <View className={styles.wxAuthSubFooter}>
+              <Text
+                className={styles.privacyLink}
+                onClick={() => {
+                  setShowWxAuthModal(false);
+                  handleOpenPrivacy();
+                }}
+              >
+                《用户协议和隐私政策》
+              </Text>
+            </View>
           </View>
         </View>
       )}

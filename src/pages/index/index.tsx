@@ -239,7 +239,7 @@ const IndexPage: React.FC = () => {
     canReuseSnapshot() ? getLastSnapshot() : null,
   );
 
-  // === 微信授权次级弹窗 ===
+  // === 微信授权次级弹窗（已废弃，保留以防兼容）===
   const [showWxAuthModal, setShowWxAuthModal] = useState(false);
 
   // store
@@ -424,42 +424,18 @@ const IndexPage: React.FC = () => {
     }
   };
 
-  // === 🔐 一键授权全流程（点 1 次，引导 3 步）===
-  // 由于微信隐私规则，无法 1 步同时获取头像+手机号
-  // 但能做成"1 个入口按钮 + 自动 3 步引导"
-  const handleOneClickWechatAuth = async () => {
-    if (!isWechatMp()) {
-      showToast('请在小程序中使用', 'error');
-      return;
-    }
+  // === 🔐 旧的"一键授权"函数（已废弃，改用 3 个独立按钮）===
 
-    // 隐私协议
-    showToast('① 请同意隐私协议', 'success');
-    await new Promise((r) => setTimeout(r, 800));
-    const setting = await wxGetPrivacySetting();
-    if (setting.needAuthorization) {
-      const ok = await wxRequirePrivacyAuthorize();
-      if (!ok) {
-        showToast('需要同意隐私协议', 'error');
-        return;
-      }
-    }
-
-    // 检查缺少什么，引导用户去点对应的官方按钮
-    const missing: string[] = [];
-    if (!memberCard?.avatarUrl) missing.push('头像');
-    if (!phoneInput) missing.push('手机号');
-
-    if (missing.length === 0) {
-      showToast('✓ 已全部授权', 'success');
-      return;
-    }
-
-    if (missing.length === 1) {
-      showToast(`② 请点击下方"${missing[0] === '头像' ? '选微信头像' : '一键获取微信手机号'}"按钮`, 'success');
-    } else {
-      showToast('② 请先点"选微信头像" → ③ 再点"一键获取微信手机号"', 'success');
-    }
+  // === 昵称输入聚焦（触发微信选择昵称弹窗）===
+  const handleFocusNickname = () => {
+    // 找到昵称输入框并聚焦
+    // 在真机上，type="nickname" 的 input 点击会触发微信"使用你的微信昵称"弹窗
+    // 这里只需要触发 Toast 提示用户点击下面的昵称输入框
+    showToast('💡 点击下方"昵称"输入框', 'success');
+    setTimeout(() => {
+      const el = document.querySelector('input[type="nickname"]') as HTMLInputElement;
+      if (el) el.focus();
+    }, 300);
   };
 
   // === 新版：选择微信头像 ===
@@ -1296,18 +1272,37 @@ const IndexPage: React.FC = () => {
               </View>
             )}
 
-            {/* ========== 🔐 微信一键填入（唯一主入口）========== */}
-            <Button
-              className={styles.wxOneClickAuth}
-              onClick={() => setShowWxAuthModal(true)}
-            >
-              <Text className={styles.wxOneClickAuthTitle}>
-                🔐 微信一键填入
-              </Text>
-              <Text className={styles.wxOneClickAuthDesc}>
-                头像 + 微信昵称 + 手机号
-              </Text>
-            </Button>
+            {/* ========== 3 个独立按钮（每个只做一件事）========== */}
+            <View className={styles.wxThreeBtnRow}>
+              {/* 1. 选微信头像 */}
+              <Button
+                className={styles.wxThreeBtn}
+                openType="chooseAvatar"
+                onChooseAvatar={handleChooseAvatar}
+              >
+                <Text className={styles.wxThreeBtnIcon}>📷</Text>
+                <Text className={styles.wxThreeBtnLabel}>头像</Text>
+              </Button>
+
+              {/* 2. 微信昵称（聚焦输入框 + 触发微信选择） */}
+              <View
+                className={styles.wxThreeBtn}
+                onClick={handleFocusNickname}
+              >
+                <Text className={styles.wxThreeBtnIcon}>✏️</Text>
+                <Text className={styles.wxThreeBtnLabel}>昵称</Text>
+              </View>
+
+              {/* 3. 微信手机号 */}
+              <Button
+                className={styles.wxThreeBtn}
+                openType="getPhoneNumber"
+                onGetPhoneNumber={handleGetPhoneNumber}
+              >
+                <Text className={styles.wxThreeBtnIcon}>📱</Text>
+                <Text className={styles.wxThreeBtnLabel}>手机号</Text>
+              </Button>
+            </View>
 
             {/* 隐私协议入口（必看） */}
             <View className={styles.privacyTip}>
